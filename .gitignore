@@ -2,4 +2,4 @@
 /test
 *.py
 ./.vscode
-./sage_venv
+sage_venv
