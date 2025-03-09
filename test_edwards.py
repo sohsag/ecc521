@@ -15,6 +15,10 @@ def G_in_edwards():
 def G_in_weierstrass(G_in_edwards):
     return E(*to_weierstrass(G_in_edwards))
 
+@pytest.fixture
+def G_projective(G_in_edwards):
+    return affine_to_proj(G_in_edwards)
+
 
 def test_simple_translation(G_in_edwards, G_in_weierstrass):
     point = to_edwards(AffinePoint(G_in_weierstrass[0], G_in_weierstrass[1]))
@@ -23,9 +27,8 @@ def test_simple_translation(G_in_edwards, G_in_weierstrass):
     assert point.y == G_in_edwards[1]
 
 
-def test_addition(G_in_edwards, G_in_weierstrass):
-    G_proj = affine_to_proj(G_in_edwards)
-    TwoG = edwards_addition(G_proj, G_proj)
+def test_addition(G_projective, G_in_weierstrass):
+    TwoG = edwards_addition(G_projective, G_projective)
     affine_edwards_two_g = proj_to_affine(TwoG)
     affine_weierstrass_two_g = to_weierstrass(affine_edwards_two_g)
 
@@ -33,9 +36,8 @@ def test_addition(G_in_edwards, G_in_weierstrass):
     assert (G_in_weierstrass * 2)[1] == affine_weierstrass_two_g.y
 
 
-def test_doubling(G_in_edwards, G_in_weierstrass):
-    G_proj = affine_to_proj(G_in_edwards)
-    TwoG = edwards_doubling(G_proj)
+def test_doubling(G_projective, G_in_weierstrass):
+    TwoG = edwards_doubling(G_projective)
     affine_edwards_two_g = proj_to_affine(TwoG)
     affine_weierstrass_two_g = to_weierstrass(affine_edwards_two_g)
 
@@ -43,9 +45,8 @@ def test_doubling(G_in_edwards, G_in_weierstrass):
     assert (G_in_weierstrass * 2)[1] == affine_weierstrass_two_g.y
 
 
-def test_scalar_multiplication(G_in_edwards, G_in_weierstrass):
-    G_proj = affine_to_proj(G_in_edwards)
-    Q = edwards_scalar_multiplication(G_proj, 2)
+def test_scalar_multiplication(G_projective, G_in_weierstrass):
+    Q = edwards_scalar_multiplication(G_projective, 2)
 
     affine_edwards_q = proj_to_affine(Q)
     affine_weierstrass_q = to_weierstrass(affine_edwards_q)
@@ -54,10 +55,9 @@ def test_scalar_multiplication(G_in_edwards, G_in_weierstrass):
     assert (G_in_weierstrass * 2)[1] == affine_weierstrass_q.y
 
 
-def test_add_inversions(G_in_edwards):
-    G_proj = affine_to_proj(G_in_edwards)
-    G_proj_inv = edwards_negation(G_proj)
-    neutral_element = edwards_addition(G_proj, G_proj_inv)
+def test_add_inversions(G_projective):
+    G_proj_inv = edwards_negation(G_projective)
+    neutral_element = edwards_addition(G_projective, G_proj_inv)
     assert neutral_element.X == 0
     assert neutral_element.Y == neutral_element.Z
 
