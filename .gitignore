@@ -1,5 +1,8 @@
 .venv
 /test
 *.py
-./.vscode
 sage_venv
+.idea
+.vscode
+setup_sage.sage
+pyrightconfig.json
