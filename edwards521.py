@@ -85,7 +85,7 @@ def edwards_doubling(P: ProjectivePoint) -> ProjectivePoint:
 
 def edwards_scalar_multiplication(P: ProjectivePoint, scalar: int) -> ProjectivePoint:
     Q = P
-    R = ProjectivePoint(_sage_const_0 , _sage_const_1 , _sage_const_1 )
+    R = Edwards_Neutral_Element_Projective
     while scalar > _sage_const_0 :
         if scalar % _sage_const_2  == _sage_const_1 :
             R = edwards_addition(R, Q)
@@ -95,7 +95,7 @@ def edwards_scalar_multiplication(P: ProjectivePoint, scalar: int) -> Projective
     return R
 
 
-def edwards_inversion(P: ProjectivePoint) -> ProjectivePoint:
+def edwards_negation(P: ProjectivePoint) -> ProjectivePoint:
     X, Y, Z = P
     return ProjectivePoint(-X, Y, Z)
 

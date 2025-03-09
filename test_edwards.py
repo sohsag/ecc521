@@ -48,7 +48,7 @@ def test_scalar_multiplication(G_in_edwards):
     G = E(*to_weierstrass(G_in_edwards))
     G_proj = affine_to_proj(G_in_edwards)
     Q = edwards_scalar_multiplication(G_proj, 2)
-    print(Q)
+
     affine_edwards_q = proj_to_affine(Q)
     affine_weierstrass_q = to_weierstrass(affine_edwards_q)
 
@@ -59,7 +59,7 @@ def test_scalar_multiplication(G_in_edwards):
 def test_add_inversions(G_in_edwards):
     G = E(*to_weierstrass(G_in_edwards))
     G_proj = affine_to_proj(G_in_edwards)
-    G_proj_inv = edwards_inversion(G_proj)
+    G_proj_inv = edwards_negation(G_proj)
     neutral_element = edwards_addition(G_proj, G_proj_inv)
     assert neutral_element.X == 0
     assert neutral_element.Y == neutral_element.Z
