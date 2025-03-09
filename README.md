@@ -1,1 +1,1 @@
-Sage implementation of Montgomery curve and Edwards curve
+## Sage implementation of Edwards curve

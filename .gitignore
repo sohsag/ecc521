@@ -1,8 +1,8 @@
 .venv
 /test
-*.py
 sage_venv
 .idea
 .vscode
-setup_sage.sage
 pyrightconfig.json
+*.sage.py
+__pycache__
