@@ -2,7 +2,7 @@
 
 
 
-## To make changes in edwards.py
+## To make changes in edwards521.py
 ```shell
 sh compile.sh
 ```
