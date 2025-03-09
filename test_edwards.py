@@ -16,9 +16,8 @@ def G_in_weierstrass(G_in_edwards):
     return E(*to_weierstrass(G_in_edwards))
 
 
-def test_simple_translation(G_in_edwards):
-    G = E(*to_weierstrass(G_in_edwards))
-    point = to_edwards(AffinePoint(G[0], G[1]))
+def test_simple_translation(G_in_edwards, G_in_weierstrass):
+    point = to_edwards(AffinePoint(G_in_weierstrass[0], G_in_weierstrass[1]))
 
     assert point.x == G_in_edwards[0]
     assert point.y == G_in_edwards[1]
@@ -44,20 +43,18 @@ def test_doubling(G_in_edwards, G_in_weierstrass):
     assert (G_in_weierstrass * 2)[1] == affine_weierstrass_two_g.y
 
 
-def test_scalar_multiplication(G_in_edwards):
-    G = E(*to_weierstrass(G_in_edwards))
+def test_scalar_multiplication(G_in_edwards, G_in_weierstrass):
     G_proj = affine_to_proj(G_in_edwards)
     Q = edwards_scalar_multiplication(G_proj, 2)
 
     affine_edwards_q = proj_to_affine(Q)
     affine_weierstrass_q = to_weierstrass(affine_edwards_q)
 
-    assert (G * 2)[0] == affine_weierstrass_q.x
-    assert (G * 2)[1] == affine_weierstrass_q.y
+    assert (G_in_weierstrass * 2)[0] == affine_weierstrass_q.x
+    assert (G_in_weierstrass * 2)[1] == affine_weierstrass_q.y
 
 
 def test_add_inversions(G_in_edwards):
-    G = E(*to_weierstrass(G_in_edwards))
     G_proj = affine_to_proj(G_in_edwards)
     G_proj_inv = edwards_negation(G_proj)
     neutral_element = edwards_addition(G_proj, G_proj_inv)
