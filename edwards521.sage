@@ -1,9 +1,9 @@
-from sage.all import *
-from collections import namedtuple
-
-AffinePoint = namedtuple('AffinePoint', ['x', 'y'])
-ProjectivePoint = namedtuple('ProjectivePoint', ['X', 'Y', 'Z'])
-
+from utils import (
+    Edwards_Neutral_Element_Affine,
+    Edwards_Neutral_Element_Projective,
+    AffinePoint,
+    ProjectivePoint
+)
 # constants from https://neuromancer.sk/std/other/E-521
 p = 0x1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 K = GF(p)
@@ -15,9 +15,6 @@ E = EllipticCurve(K, (
     K(-1 / 48) * (1 + 14 * d + d ^ 2),  # a
     K(1 / 864) * (1 + d) * (-1 + 34 * d - d ^ 2)  # b
 ))
-
-Edwards_Neutral_Element_Affine = AffinePoint(0, 1)
-Edwards_Neutral_Element_Projective = ProjectivePoint(0, 1, 1)
 
 # conversions found https://neuromancer.sk/std/other/Ed25519
 def to_weierstrass(P: AffinePoint) -> AffinePoint:
@@ -31,15 +28,6 @@ def to_edwards(P: AffinePoint) -> AffinePoint:
     y = (5 - 12 * u - d) / (-12 * u - 1 + 5 * d)
     x = (1 + y - d * y - d) / (4 * v - 4 * v * y)
     return AffinePoint(x, y)
-
-
-def affine_to_proj(P: AffinePoint) -> ProjectivePoint:
-    return ProjectivePoint(P.x, P.y, K(1))
-
-
-def proj_to_affine(P: ProjectivePoint) -> AffinePoint:
-    return AffinePoint(P.X / P.Z, P.Y / P.Z)
-
 
 def edwards_addition(P1: ProjectivePoint, P2: ProjectivePoint) -> ProjectivePoint:
     # page 21
@@ -92,3 +80,18 @@ def edwards_scalar_multiplication(P: ProjectivePoint, scalar: int) -> Projective
 def edwards_negation(P: ProjectivePoint) -> ProjectivePoint:
     X, Y, Z = P
     return ProjectivePoint(-X, Y, Z)
+
+
+
+def montgomery_ladder(P: ProjectivePoint, k: int):
+    k_bin = bin(k)[2:] 
+    k_bin = k_bin[::-1]  
+    R0, R1 = P, edwards_doubling(P)
+
+    for i in range(len(k_bin) - 2, -1, -1): 
+        if k_bin[i] == "0":
+            R0, R1 = edwards_doubling(R0), edwards_addition(R0, R1)
+        else:
+            R0, R1 = edwards_addition(R0, R1), edwards_doubling(R1)
+
+    return R0

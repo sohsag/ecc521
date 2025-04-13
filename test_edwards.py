@@ -1,6 +1,11 @@
 import pytest
 from edwards521 import *
-
+from utils import (
+    AffinePoint,
+    Edwards_Neutral_Element_Affine,
+    affine_to_proj,
+    proj_to_affine
+)
 
 @pytest.fixture
 def G_in_edwards():
@@ -17,12 +22,12 @@ def G_in_weierstrass(G_in_edwards):
 
 @pytest.fixture
 def G_projective(G_in_edwards):
-    return affine_to_proj(G_in_edwards)
+    return affine_to_proj(G_in_edwards, K)
 
 
 def test_simple_translation(G_in_edwards, G_in_weierstrass):
     point = to_edwards(AffinePoint(G_in_weierstrass[0], G_in_weierstrass[1]))
-
+ 
     assert point.x == G_in_edwards[0]
     assert point.y == G_in_edwards[1]
 
@@ -63,3 +68,13 @@ def test_add_inversions(G_projective):
 
     neutral_affine = proj_to_affine(neutral_element)
     assert neutral_affine == Edwards_Neutral_Element_Affine  # neutral element for edwards curve in affine coordinates
+
+# next step to look at montgomery ladder and implement that
+
+def test_montgomery_ladder(G_projective, G_in_weierstrass):
+    eight_times_G = montgomery_ladder(G_projective, 8)
+    affine_8_G = proj_to_affine(eight_times_G)
+    weierstrass_8_G = to_weierstrass(affine_8_G)
+    
+    assert weierstrass_8_G.x == (G_in_weierstrass * 8)[0]
+    
