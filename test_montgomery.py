@@ -42,12 +42,25 @@ def test_xADD(G_projective_xz, G_in_weierstrass):
 
     assert (G_in_weierstrass * 2 + G_in_weierstrass)[0] == G3x
 
-def test_uniform_ladder(G_projective_xz, G_in_weierstrass):
-    G8 = ladder(G_projective_xz, 8)
-    G8x = xz_to_x_coordinate(G8)
-    G8x = x_in_weierstrass(G8x)
 
-    assert (G_in_weierstrass * 8)[0] == G8x
+def test_uniform_ladder1(G_projective_xz, G_in_weierstrass):
+    G212, _ = montgomery_ladder(G_projective_xz, 212)
+    G212x = xz_to_x_coordinate(G212)
+    G212x = x_in_weierstrass(G212x)
 
+    assert (G_in_weierstrass*212)[0] == G212x
 
+def test_uniform_ladder2(G_projective_xz, G_in_weierstrass):
+    G313, _ = montgomery_ladder(G_projective_xz, 313)
+    G313x = xz_to_x_coordinate(G313)
+    G313x = x_in_weierstrass(G313x)
 
+    assert (G_in_weierstrass*313)[0] == G313x
+
+def test_y_recovery(G_projective_xz, G_in_weierstrass, G_in_montgomery):
+    G313, G314 = montgomery_ladder(G_projective_xz, 313)
+    G313_full = y_recovery(G_in_montgomery, G313, G314)
+    G313_full = proj_to_affine(G313_full)
+    G313_full = E(*to_weierstrass(G313_full))
+    y = G313_full.xy()[1]
+    assert (G_in_weierstrass*313)[1] == y

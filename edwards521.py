@@ -54,30 +54,13 @@ def edwards_addition(P1: ProjectivePoint, P2: ProjectivePoint) -> ProjectivePoin
 
     return ProjectivePoint(X3, Y3, Z3)
 
-
-def edwards_doubling(P: ProjectivePoint) -> ProjectivePoint:
-    X, Y, Z = P
-    B = (X + Y) ** _sage_const_2 
-    C = X ** _sage_const_2 
-    D = Y ** _sage_const_2 
-    E = C + D
-    H = Z ** _sage_const_2 
-    J = E - _sage_const_2  * H
-
-    X3 = (B - E) * J  # <-- book is wrong here. book X3 = B - E
-    Y3 = E * (C - D)
-    Z3 = E * J
-
-    return ProjectivePoint(X3, Y3, Z3)
-
-
 def edwards_scalar_multiplication(P: ProjectivePoint, scalar: int) -> ProjectivePoint:
     Q = P
     R = Edwards_Neutral_Element_Projective
     while scalar > _sage_const_0 :
         if scalar % _sage_const_2  == _sage_const_1 :
             R = edwards_addition(R, Q)
-        Q = edwards_doubling(Q)
+        Q = edwards_addition(Q, Q)
         scalar = scalar // _sage_const_2 
 
     return R
@@ -88,17 +71,18 @@ def edwards_negation(P: ProjectivePoint) -> ProjectivePoint:
     return ProjectivePoint(-X, Y, Z)
 
 
-
+"""
 def montgomery_ladder(P: ProjectivePoint, k: int):
-    k_bin = bin(k)[_sage_const_2 :] 
-    k_bin = k_bin[::-_sage_const_1 ]  
+    k_bin = bin(k)[2:] 
+    k_bin = k_bin[::-1]  
     R0, R1 = P, edwards_doubling(P)
 
-    for i in range(len(k_bin) - _sage_const_2 , -_sage_const_1 , -_sage_const_1 ): 
+    for i in range(len(k_bin) - 2, -1, -1): 
         if k_bin[i] == "0":
             R0, R1 = edwards_doubling(R0), edwards_addition(R0, R1)
         else:
             R0, R1 = edwards_addition(R0, R1), edwards_doubling(R1)
 
     return R0
+    """
 

@@ -42,7 +42,7 @@ def test_addition(G_projective, G_in_weierstrass):
 
 
 def test_doubling(G_projective, G_in_weierstrass):
-    TwoG = edwards_doubling(G_projective)
+    TwoG = edwards_scalar_multiplication(G_projective, 2)
     affine_edwards_two_g = proj_to_affine(TwoG)
     affine_weierstrass_two_g = to_weierstrass(affine_edwards_two_g)
 
@@ -72,7 +72,7 @@ def test_add_inversions(G_projective):
 # next step to look at montgomery ladder and implement that
 
 def test_montgomery_ladder(G_projective, G_in_weierstrass):
-    eight_times_G = montgomery_ladder(G_projective, 8)
+    eight_times_G = edwards_scalar_multiplication(G_projective, 8)
     affine_8_G = proj_to_affine(eight_times_G)
     weierstrass_8_G = to_weierstrass(affine_8_G)
     

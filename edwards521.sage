@@ -48,30 +48,13 @@ def edwards_addition(P1: ProjectivePoint, P2: ProjectivePoint) -> ProjectivePoin
 
     return ProjectivePoint(X3, Y3, Z3)
 
-
-def edwards_doubling(P: ProjectivePoint) -> ProjectivePoint:
-    X, Y, Z = P
-    B = (X + Y) ^ 2
-    C = X ^ 2
-    D = Y ^ 2
-    E = C + D
-    H = Z ^ 2
-    J = E - 2 * H
-
-    X3 = (B - E) * J  # <-- book is wrong here. book X3 = B - E
-    Y3 = E * (C - D)
-    Z3 = E * J
-
-    return ProjectivePoint(X3, Y3, Z3)
-
-
 def edwards_scalar_multiplication(P: ProjectivePoint, scalar: int) -> ProjectivePoint:
     Q = P
     R = Edwards_Neutral_Element_Projective
     while scalar > 0:
         if scalar % 2 == 1:
             R = edwards_addition(R, Q)
-        Q = edwards_doubling(Q)
+        Q = edwards_addition(Q, Q)
         scalar = scalar // 2
 
     return R
@@ -82,7 +65,7 @@ def edwards_negation(P: ProjectivePoint) -> ProjectivePoint:
     return ProjectivePoint(-X, Y, Z)
 
 
-
+"""
 def montgomery_ladder(P: ProjectivePoint, k: int):
     k_bin = bin(k)[2:] 
     k_bin = k_bin[::-1]  
@@ -95,3 +78,4 @@ def montgomery_ladder(P: ProjectivePoint, k: int):
             R0, R1 = edwards_addition(R0, R1), edwards_doubling(R1)
 
     return R0
+    """

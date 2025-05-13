@@ -31,7 +31,7 @@ def diff(P: ProjectivePointXZ, Q: ProjectivePointXZ) -> ProjectivePointXZ:
     return ProjectivePointXZ(P.X - Q.X, P.Z - Q.Z) # this is wrong. we do this by P + (-Q)
 
 def xADD(P: ProjectivePointXZ, Q: ProjectivePointXZ, Diff: ProjectivePointXZ):
-    # Algorithm 1
+    # Algorithm 4
     V0 = P.X + P.Z
     V1 = Q.X - Q.Z
     V1 = V1 * V0
@@ -48,7 +48,7 @@ def xADD(P: ProjectivePointXZ, Q: ProjectivePointXZ, Diff: ProjectivePointXZ):
     return ProjectivePointXZ(X_plus, Z_plus)
 
 def xDBL(P: ProjectivePointXZ) -> ProjectivePointXZ:
-    # Algorithm 2
+    # Algorithm 5
     V1 = P.X + P.Z
     V1 = V1^2
     V2 = P.X - P.Z
@@ -63,83 +63,70 @@ def xDBL(P: ProjectivePointXZ) -> ProjectivePointXZ:
 
 def SWAP_coordinate(b: int, x0: int, x1: int):
     # Algorithm 7
-    # we need to swap first the x coordinate and then the z coordinate. also pad them (technically we don't need to but for sake of showing we do anyway
-    # You're effectively computing [0]P + [k]P, which just equals [k]P
 
     x0 = int(x0)
     x1 = int(x1)
 
     mask = 0
-    for _ in range(K.characteristic().nbits()-1):
+    for _ in range(256):
         mask = (mask << 1) | b
 
     v = mask & (x0 ^^ x1)
     
     return K(int(x0) ^^ int(v)), K(int(x1) ^^ int(v))
 
-# we need to "pad" the integer k with 0, but how we want to do this is take the order of E, 
-# and start backwards where we start from log_2(order.E) down to 0 and we shift the bit with the index e.g.
 
-"""
-for i in range(log_2(E.order(), -1, -1):
-    bit_i = k >> i + 1 & 1
-    swap
-    # do operations here
-    swap
-
-
-    # also try to do the if the bits change
-    swap_bit = k_bits[i+1] ^^ k_bits[i]
-
-    
-
-
-
-
-
-def uniform_ladder(P: ProjectivePointXZ, k: int):
+def montgomery_ladder(P: ProjectivePointXZ, k: int): 
     # Algorithm 8
-    k_bits = Integer(k).bits()
-    k_bits.reverse() 
-    
-    x0 = xDBL(P)
-    x1 = P
-    
-    
-    for i in range(len(k_bits)-2, -1, -1):
-        swap_bit = k_bits[i+1] ^^ k_bits[i]
-        
-        (x0, x1) = SWAP_coordinate(swap_bit, x0, x1)
-        
-        x0 = xDBL(x0)
-        x1 = xADD(x0, x1, P)
-    
-    (x0, x1) = SWAP_coordinate(k_bits[0], x0, x1)
-    
-    return x0
-"""
-def ladder(P: ProjectivePointXZ, k: int):
-    x0, x1 = xDBL(P), P
+    group_order2 = Integer(7237005577332262213973186563042994240857116359379907606001950938285454250989) * 2
+    k = Integer(k) + group_order2
+    k_bits = k.bits()
 
-    n_bits = ceil(log(E.order(), 2))
-    
-    for i in range(n_bits-2, -1, -1):
-        swap_bit = (k >> i) & 1
-    
+    x0, x1 = xDBL(P), P
+    prev_bit = k_bits[k.nbits() - 1]
+    for i in range(k.nbits() - 2, -1, -1): 
+        cur_bit = k_bits[i]
+
+        swap_bit = prev_bit ^^ cur_bit
+        
         x0X, x1X = SWAP_coordinate(swap_bit, x0.X, x1.X)
         x0Z, x1Z = SWAP_coordinate(swap_bit, x0.Z, x1.Z)
 
         x0 = ProjectivePointXZ(x0X, x0Z)
-        x1 = ProjectivePointXZ(x1X, x1Z)
+        x1 = ProjectivePointXZ(x1X, x1Z)   
 
         x0, x1 = xDBL(x0), xADD(x0, x1, P)
-        
-        x0X, x1X = SWAP_coordinate(swap_bit, x0.X, x1.X)
-        x0Z, x1Z = SWAP_coordinate(swap_bit, x0.Z, x1.Z)
-        
-        x0 = ProjectivePointXZ(x0X, x0Z)
-        x1 = ProjectivePointXZ(x1X, x1Z)    
+
+        prev_bit = cur_bit
+    x0X, x1X = SWAP_coordinate(k_bits[0], x0.X, x1.X)
+    x0Z, x1Z = SWAP_coordinate(k_bits[0], x0.Z, x1.Z)
+
+    x0 = ProjectivePointXZ(x0X, x0Z)
+    x1 = ProjectivePointXZ(x1X, x1Z)   
+    return x0, x1
+
+def y_recovery(G, Q, G_plus_Q):
+    # Algorithm 9
+    v1 = G.x * Q.Z
+    v2 = Q.X + v1
+    v3 = Q.X - v1
+    v3 = v3^2
+    v3 = v3 * G_plus_Q.X
+    v1 = 2 * A * Q.Z
+    v2 = v2 + v1
+    v4 = G.x * Q.X
+    v4 = v4 + Q.Z
+    v2 = v2 * v4
+    v1 = v1 * Q.Z
+    v2 = v2 - v1
+    v2 = v2 * G_plus_Q.Z
+    Y_prime = v2 - v3
+    v1 = 2 * B * G.y 
+    v1 = v1 * Q.Z
+    v1 = v1 * G_plus_Q.Z
+    X_prime = v1 * Q.X
+    Z_prime = v1 * Q.Z
     
-    return x0
+    return ProjectivePoint(X_prime, Y_prime, Z_prime)
 
-
+    
