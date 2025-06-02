@@ -6,3 +6,5 @@ sage_venv
 pyrightconfig.json
 *.sage.py
 __pycache__
+.pytest_cache
+.ruff_cache

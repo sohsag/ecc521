@@ -1,8 +1,6 @@
-# Sage implementation of Edwards curve
+# Sage implementation of Weierstrass, Edwards and Montgomery. 
 
-
-
-## To make changes in edwards521.py
+## To make changes, edit the code and run the shellscript
 ```shell
 sh compile.sh
 ```
@@ -15,5 +13,11 @@ pip install -r requirements.txt
 ```
 ### Run tests
 ```shell
-sage -python -m pytest
+sh run_tests.sh
 ```
+
+## To run the experiments
+```shell
+sh run_experiments.sh
+```
+
