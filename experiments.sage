@@ -11,8 +11,9 @@ def main():
     func_format(edwards521_vs_edwards25519)
     func_format(edwards25519_vs_montgomery25519_vs_weierstrass25519)
     func_format(edwards25519_vs_montgomery25519_vs_weierstrass25519_fermat)
-    func_format(constant_time_montgomery_ladder_vs_varying_time)
     func_format(weierstrass25519_affine_vs_weierstrass25519_jacobian)
+    func_format(constant_time_montgomery_ladder_vs_varying_time)
+    
 
 def edwards521_vs_edwards25519():
     from edwards521 import edwards_scalar_multiplication, K
@@ -21,7 +22,7 @@ def edwards521_vs_edwards25519():
     G_in_edwards521 = AffinePoint(Gx, Gy)
     t1 = time()
     for _ in range(1000):
-        Q = edwards_scalar_multiplication(G_in_edwards521, 57896044618658097711785492504343953926856930875039260848015607506283634007912 + 1)
+        Q = edwards_scalar_multiplication(G_in_edwards521, 1716199415032652428745475199770348304317358825035826352348615864796385795849413675475876651663657849636693659065234142604319282948702542317993421293670108523 + 1)
     t2 = time()
     print(f"edwards521 took on avg. {(t2-t1)/1000:.6f} seconds")
 
